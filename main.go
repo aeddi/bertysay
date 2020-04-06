@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aeddi/bertysay/banner"
+	"berty.tech/berty/v2/go/pkg/banner"
 	"github.com/spf13/pflag"
 )
 

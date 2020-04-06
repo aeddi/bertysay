@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	mrand "math/rand"
 	"os"
 	"strings"
+	"time"
 
 	"berty.tech/berty/v2/go/pkg/banner"
 	"github.com/spf13/pflag"
@@ -14,6 +16,7 @@ func main() {
 	var (
 		author string
 		text   string
+		qotd   bool
 		random bool
 		help   bool
 		quote  banner.Quote
@@ -24,15 +27,19 @@ func main() {
 
 	cmd.StringVarP(&author, "author", "a", "", "author name")
 	cmd.StringVarP(&text, "text", "t", "", "text to say")
+	cmd.BoolVarP(&qotd, "qotd", "q", false, "say the quote of the day about privacy (override text and random flags)")
 	cmd.BoolVarP(&random, "random", "r", false, "say a random quote about privacy (override text flag)")
-	cmd.BoolVarP(&help, "help", "h", false, "display this help message (override other flag)")
+	cmd.BoolVarP(&help, "help", "h", false, "display this help message (override all other flags)")
 
 	if err := cmd.Parse(os.Args); err != nil || help {
 		printUsageAndExit(cmd.FlagUsages(), err)
 	}
 
-	if random {
+	if qotd {
 		quote = banner.QOTD()
+	} else if random {
+		mrand.Seed(time.Now().UnixNano())
+		quote = banner.RandomQuote()
 	} else if text != "" {
 		quote.Text = text
 	} else {
@@ -67,7 +74,7 @@ func printUsageAndExit(flagUsage string, err error) {
 
 	fmt.Fprintf(
 		output,
-		"%sUsage: %s [[-r | -t] [-a] | [-h]]\n\n%s\n%s\n\n%s",
+		"%sUsage: %s [[-t | -q | -r] [-a] | [-h]]\n\n%s\n%s\n\n%s",
 		errText,
 		os.Args[0],
 		"Bertysay is like cowsay but with a parrot and optional quote about privacy",
